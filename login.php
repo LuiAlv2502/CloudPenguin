@@ -175,7 +175,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             line-height: 1.5;
         }
 
-        .pie {
+       .pie {
             margin-top: 28px;
             padding-top: 18px;
             border-top: 1px solid #edf0f5;
@@ -183,6 +183,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             color: #929bb0;
             font-size: 11px;
             line-height: 1.6;
+        }
+        
+        .pie strong {
+            color: #30358b;
+            font-size: 12px;
         }
 
         @media (max-width: 480px) {
@@ -281,7 +286,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </form>
 
         <footer class="pie">
-            Sistema de Administración
+            <strong>Grupo 6 · Cloud TUX</strong><br>
+            Josué Peñaranda Alvarado · Ximena Ortiz Llanes<br>
+            Diego Alvarado Salazar · Jesús Barboza Rios
         </footer>
 
     </main>
