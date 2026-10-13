@@ -53,28 +53,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         .logo {
             display: block;
-            width: 70px;
+            width: 90px;
             height: auto;
-            margin: 0 auto 10px;
+            margin: 0 auto 16px;
         }
         
-        .icono {
-            width: 40px;
-            height: 40px;
-            margin: 0 auto 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 12px;
-            background: #eef0ff;
-            color: #30358b;
-        }
-        
-        .icono svg {
-            width: 20px;
-            height: 20px;
-        }
-
         .login {
             width: 100%;
             max-width: 440px;
@@ -220,23 +203,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
        <header class="encabezado">
 
     <img src="cloud_tux.png" alt="Cloud Tux Logo" class="logo">
-
-        <div class="icono">
-            <svg
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="1.8"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                aria-hidden="true"
-            >
-                <rect x="4" y="10" width="16" height="11" rx="2"/>
-                <path d="M8 10V7a4 4 0 0 1 8 0v3"/>
-                <path d="M12 14v3"/>
-            </svg>
-        </div>
-    
+           
         <h1>Acceso al Sistema</h1>
     
         <p class="subtitulo">
