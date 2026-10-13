@@ -1,7 +1,7 @@
 <?php
 session_start();
 
-require_once __DIR__ . '/credenciales.php';
+require_once __DIR__ . '/Usuario_y_CLave.php';
 
 $error = '';
 
@@ -18,7 +18,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $_SESSION['autenticado'] = true;
         $_SESSION['usuario'] = $usuario;
 
-        header('Location: panel.php');
+        header('Location: index.php');;
         exit;
     }
 
