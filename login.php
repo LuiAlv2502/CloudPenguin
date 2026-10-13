@@ -107,7 +107,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         .separador {
+            height: 1px;
             margin: 18px 0;
+            background: #e9edf4;
         }
 
         .campo {
@@ -215,34 +217,36 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     <main class="login">
 
-        <header class="encabezado">
+       <header class="encabezado">
 
-            <img src="cloud_tux.png" alt="Cloud Tux Logo" class="logo">
-                <svg
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="1.8"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    aria-hidden="true"
-                >
-                    <rect x="4" y="10" width="16" height="11" rx="2"/>
-                    <path d="M8 10V7a4 4 0 0 1 8 0v3"/>
-                    <path d="M12 14v3"/>
-                </svg>
-            </div>
+    <img src="cloud_tux.png" alt="Cloud Tux Logo" class="logo">
 
-            <h1>Acceso al Sistema</h1>
-
-            <p class="subtitulo">
-                <strong>CURSO:</strong>
-                Administración de Bases de Datos
-                <br>
-                <strong>Prof. Manuel Espinoza G.</strong>
-            </p>
-
-        </header>
+        <div class="icono">
+            <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.8"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+            >
+                <rect x="4" y="10" width="16" height="11" rx="2"/>
+                <path d="M8 10V7a4 4 0 0 1 8 0v3"/>
+                <path d="M12 14v3"/>
+            </svg>
+        </div>
+    
+        <h1>Acceso al Sistema</h1>
+    
+        <p class="subtitulo">
+            <strong>CURSO:</strong>
+            Administración de Bases de Datos
+            <br>
+            <strong>Prof. Manuel Espinoza G.</strong>
+        </p>
+    
+    </header>
 
         <div class="separador"></div>
 
