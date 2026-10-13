@@ -169,7 +169,36 @@ $usuario = $_SESSION['usuario'] ?? 'estudiante';
         .btn-action:hover {
             background-color: #1d4ed8;
         }
-
+        body {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .container {
+            flex: 1;
+            width: 100%;
+        }
+        
+        /* Footer */
+        .footer-main {
+            background-color: #0f172a;
+            color: #cbd5e1;
+            text-align: center;
+            padding: 18px 24px;
+            font-size: 12px;
+            line-height: 1.7;
+            margin-top: 36px;
+        }
+        
+        .footer-main strong {
+            color: #ffffff;
+            font-size: 13px;
+        }
+        
+        .footer-main .integrantes {
+            color: #94a3b8;
+        }
         @media (max-width: 768px) {
             .header-main, .header-sub {
                 flex-direction: column;
@@ -275,6 +304,12 @@ $usuario = $_SESSION['usuario'] ?? 'estudiante';
             </div>
         </div>
     </main>
-
+    <footer class="footer-main">
+    <strong>Grupo 6 · Cloud TUX</strong><br>
+    <span class="integrantes">
+        Josué Peñaranda Alvarado · Ximena Ortiz Llanes ·
+        Diego Alvarado Salazar · Jesús Barboza Rios
+    </span>
+</footer>
 </body>
 </html>
