@@ -202,6 +202,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             h1 {
                 font-size: 23px;
             }
+            .logo {
+                display: block;
+                height: 80px;
+                width: auto;
+                max-width: 100%;
+                margin: 0 auto 18px;
+                object-fit: contain;
+            }
         }
     </style>
 </head>
@@ -212,7 +220,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         <header class="encabezado">
 
-            <div class="icono">
+            <img src="cloud_tux.png" alt="Cloud Tux Logo" class="logo">
                 <svg
                     viewBox="0 0 24 24"
                     fill="none"
