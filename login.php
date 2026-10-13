@@ -57,6 +57,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 height: auto;
                 margin: 0 auto 18px;
             }
+        .icono {
+            width: 40px;
+            height: 40px;
+            margin: 0 auto 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 12px;
+            background: #eef0ff;
+            color: #30358b;
+        }
+        
+        .icono svg {
+            width: 20px;
+            height: 20px;
+        }
 
         .login {
             width: 100%;
