@@ -52,11 +52,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         .logo {
-                display: block;
-                width: 90px;
-                height: auto;
-                margin: 0 auto 18px;
-            }
+            display: block;
+            width: 70px;
+            height: auto;
+            margin: 0 auto 10px;
+        }
+        
         .icono {
             width: 40px;
             height: 40px;
@@ -87,7 +88,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         .encabezado {
             text-align: center;
-            margin-bottom: 30px;
+            margin-bottom: 20px;
         }
 
         h1 {
@@ -106,9 +107,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         .separador {
-            height: 1px;
-            margin: 25px 0;
-            background: #e9edf4;
+            margin: 18px 0;
         }
 
         .campo {
