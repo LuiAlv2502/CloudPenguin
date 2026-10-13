@@ -18,7 +18,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $_SESSION['autenticado'] = true;
         $_SESSION['usuario'] = $usuario;
 
-        header('Location: index.php');;
+        header('Location: index.php');
         exit;
     }
 
