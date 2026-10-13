@@ -51,6 +51,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             color: #24304f;
         }
 
+        .logo {
+                display: block;
+                width: 90px;
+                height: auto;
+                margin: 0 auto 18px;
+            }
+
         .login {
             width: 100%;
             max-width: 440px;
@@ -184,14 +191,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             h1 {
                 font-size: 23px;
-            }
-            .logo {
-                display: block;
-                height: 40px;
-                width: auto;
-                max-width: 100%;
-                margin: 0 auto 18px;
-                object-fit: contain;
             }
         }
     </style>
