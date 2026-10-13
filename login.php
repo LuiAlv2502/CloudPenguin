@@ -67,23 +67,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             margin-bottom: 30px;
         }
 
-        .icono {
-            width: 54px;
-            height: 54px;
-            margin: 0 auto 18px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 15px;
-            background: #eef0ff;
-            color: #30358b;
-        }
-
-        .icono svg {
-            width: 27px;
-            height: 27px;
-        }
-
         h1 {
             margin: 0 0 12px;
             color: #30358b;
@@ -204,7 +187,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
             .logo {
                 display: block;
-                height: 80px;
+                height: 40px;
                 width: auto;
                 max-width: 100%;
                 margin: 0 auto 18px;
