@@ -5,9 +5,9 @@
  */
 const DB_HOST = 'localhost';
 const DB_PORT = '5432';
-const DB_NAME = 'postgres';
-const DB_USER = 'postgres';
-const DB_PASS = '';
+const DB_NAME = 'pg_penaranda';
+const DB_USER = 'u119750839';
+const DB_PASS = 'RzJtHCqE4YWBsM19wYsFlkj0H';
 
 const CONSOLA_VERSION = '1.0';
 const MOTOR_NOMBRE    = 'PostgreSQL';
