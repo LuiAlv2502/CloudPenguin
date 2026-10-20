@@ -1,6 +1,19 @@
 <?php
 session_start();
 
+// ====== CONFIGURACIÓN (ajuste a su servidor PostgreSQL) ======
+const DB_HOST = 'localhost';
+const DB_PORT = '5432';
+const DB_NAME = 'postgres';
+const DB_USER = 'postgres';
+const DB_PASS = '';
+
+const CONSOLA_VERSION = '1.0';
+const MOTOR_NOMBRE    = 'PostgreSQL';
+// =============================================================
+
+function h($v): string { return htmlspecialchars((string)$v, ENT_QUOTES, 'UTF-8'); }
+
 // Cierre de sesión si se solicita por la URL (?action=logout)
 if (isset($_GET['action']) && $_GET['action'] === 'logout') {
     session_unset();
@@ -16,6 +29,25 @@ if (!isset($_SESSION['autenticado']) || $_SESSION['autenticado'] !== true) {
 }
 
 $usuario = $_SESSION['usuario'] ?? 'estudiante';
+
+// Datos del sistema: se leen del servidor; si falla, se usan los configurados
+$baseDatos       = DB_NAME;
+$usuarioConexion = DB_USER;
+$conectado       = false;
+
+try {
+    $pdo = new PDO(
+        sprintf('pgsql:host=%s;port=%s;dbname=%s', DB_HOST, DB_PORT, DB_NAME),
+        DB_USER, DB_PASS,
+        [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION, PDO::ATTR_TIMEOUT => 5]
+    );
+    $fila = $pdo->query("SELECT current_database() AS bd, current_user AS usr")->fetch(PDO::FETCH_ASSOC);
+    $baseDatos       = $fila['bd'];
+    $usuarioConexion = $fila['usr'];
+    $conectado       = true;
+} catch (PDOException $e) {
+    $conectado = false;
+}
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -39,11 +71,7 @@ $usuario = $_SESSION['usuario'] ?? 'estudiante';
             --danger-hover: #8d413d;
         }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
 
         body {
             font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
@@ -54,7 +82,6 @@ $usuario = $_SESSION['usuario'] ?? 'estudiante';
             flex-direction: column;
         }
 
-        /* Barra Superior Principal */
         .header-main {
             background-color: var(--dark);
             color: #ffffff;
@@ -63,166 +90,81 @@ $usuario = $_SESSION['usuario'] ?? 'estudiante';
             align-items: center;
             padding: 10px 24px;
         }
-
-        .header-brand {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            font-size: 18px;
-            font-weight: 700;
-        }
-
-        .header-brand img {
-            height: 38px;
-            width: auto;
-            object-fit: contain;
-        }
-
-        .header-user {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-            font-size: 14px;
-        }
-
+        .header-brand { display: flex; align-items: center; gap: 12px; font-size: 18px; font-weight: 700; }
+        .header-brand img { height: 38px; width: auto; object-fit: contain; }
+        .header-user { display: flex; align-items: center; gap: 16px; font-size: 14px; }
         .btn-logout {
-            background-color: var(--danger);
-            color: #ffffff;
-            text-decoration: none;
-            padding: 6px 14px;
-            border-radius: 6px;
-            font-weight: 600;
-            font-size: 13px;
+            background-color: var(--danger); color: #ffffff; text-decoration: none;
+            padding: 6px 14px; border-radius: 6px; font-weight: 600; font-size: 13px;
             transition: background-color 0.2s;
         }
+        .btn-logout:hover { background-color: var(--danger-hover); }
 
-        .btn-logout:hover {
-            background-color: var(--danger-hover);
-        }
-
-        /* Barra Secundaria Informativa */
         .header-sub {
-            background-color: var(--soft);
-            color: var(--soft-text);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 8px 24px;
-            font-size: 13px;
-            border-bottom: 1px solid var(--soft-border);
+            background-color: var(--soft); color: var(--soft-text);
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 8px 24px; font-size: 13px; border-bottom: 1px solid var(--soft-border);
         }
+        .header-sub strong { color: var(--dark); }
 
-        .header-sub strong {
-            color: var(--dark);
-        }
+        .container { flex: 1; width: 100%; max-width: 1200px; margin: 36px auto; padding: 0 24px; }
+        .page-title { font-size: 24px; font-weight: 700; color: var(--text); margin-bottom: 8px; }
+        .page-description { font-size: 14px; color: var(--muted); margin-bottom: 28px; }
 
-        /* Contenido Principal */
-        .container {
-            flex: 1;
-            width: 100%;
-            max-width: 1200px;
-            margin: 36px auto;
-            padding: 0 24px;
-        }
-
-        .page-title {
-            font-size: 24px;
-            font-weight: 700;
-            color: var(--text);
-            margin-bottom: 8px;
-        }
-
-        .page-description {
-            font-size: 14px;
-            color: var(--muted);
+        /* Panel de información del sistema */
+        .info-panel {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 14px;
             margin-bottom: 28px;
         }
+        .info-item {
+            background: #fff; border: 1px solid var(--border); border-top: 3px solid var(--accent);
+            border-radius: 8px; padding: 14px 16px;
+        }
+        .info-item .label {
+            font-size: 11px; text-transform: uppercase; letter-spacing: .5px;
+            color: var(--muted); margin-bottom: 4px;
+        }
+        .info-item .value { font-size: 16px; font-weight: 700; color: var(--dark); word-break: break-word; }
 
-        /* Rejilla de Opciones */
-        .cards-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-            gap: 20px;
+        .alert-info {
+            background: var(--soft); color: var(--soft-text); border: 1px solid var(--soft-border);
+            padding: 12px 16px; border-radius: 8px; font-size: 13px; margin-bottom: 20px;
         }
 
+        .cards-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; }
         .card {
-            background-color: #ffffff;
-            border: 1px solid var(--border);
-            border-left: 4px solid var(--accent);
-            border-radius: 10px;
-            padding: 22px;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            box-shadow: 0 1px 3px rgba(31, 58, 56, 0.06);
+            background-color: #ffffff; border: 1px solid var(--border); border-left: 4px solid var(--accent);
+            border-radius: 10px; padding: 22px; display: flex; flex-direction: column;
+            justify-content: space-between; box-shadow: 0 1px 3px rgba(31, 58, 56, 0.06);
             transition: box-shadow 0.2s, transform 0.2s;
         }
-
-        .card:hover {
-            box-shadow: 0 6px 16px rgba(31, 58, 56, 0.10);
-            transform: translateY(-2px);
-        }
-
+        .card:hover { box-shadow: 0 6px 16px rgba(31, 58, 56, 0.10); transform: translateY(-2px); }
         .card-title {
-            color: var(--dark);
-            font-size: 16px;
-            font-weight: 700;
-            padding-bottom: 12px;
-            margin-bottom: 12px;
-            border-bottom: 1px solid var(--border);
+            color: var(--dark); font-size: 16px; font-weight: 700;
+            padding-bottom: 12px; margin-bottom: 12px; border-bottom: 1px solid var(--border);
         }
-
-        .card-text {
-            color: var(--muted);
-            font-size: 13px;
-            line-height: 1.5;
-            margin-bottom: 20px;
-            flex-grow: 1;
-        }
-
+        .card-text { color: var(--muted); font-size: 13px; line-height: 1.5; margin-bottom: 20px; flex-grow: 1; }
         .btn-action {
-            display: inline-block;
-            background-color: var(--accent);
-            color: #ffffff;
-            text-decoration: none;
-            padding: 8px 16px;
-            border-radius: 6px;
-            font-size: 13px;
-            font-weight: 600;
-            width: fit-content;
-            transition: background-color 0.2s;
+            display: inline-block; background-color: var(--accent); color: #ffffff; text-decoration: none;
+            padding: 8px 16px; border-radius: 6px; font-size: 13px; font-weight: 600;
+            width: fit-content; transition: background-color 0.2s;
         }
+        .btn-action:hover { background-color: var(--accent-hover); }
 
-        .btn-action:hover {
-            background-color: var(--accent-hover);
-        }
+        code { background: rgba(0,0,0,.06); padding: 1px 6px; border-radius: 4px; font-size: 12px; }
 
-        /* Footer */
         .footer-main {
-            background-color: var(--dark);
-            color: #cfdcda;
-            text-align: center;
-            padding: 18px 24px;
-            font-size: 12px;
-            line-height: 1.7;
-            margin-top: 36px;
+            background-color: var(--dark); color: #cfdcda; text-align: center;
+            padding: 18px 24px; font-size: 12px; line-height: 1.7; margin-top: 36px;
         }
-
-        .footer-main strong {
-            color: #ffffff;
-            font-size: 13px;
-        }
-
-        .footer-main .integrantes {
-            color: #9fb4b1;
-        }
+        .footer-main strong { color: #ffffff; font-size: 13px; }
+        .footer-main .integrantes { color: #9fb4b1; }
+        .footer-main .sistema { color: #9fb4b1; margin-top: 6px; }
 
         @media (max-width: 768px) {
-            .header-main, .header-sub {
-                flex-direction: column;
-                gap: 8px;
-                text-align: center;
-            }
+            .header-main, .header-sub { flex-direction: column; gap: 8px; text-align: center; }
         }
     </style>
 </head>
@@ -231,12 +173,11 @@ $usuario = $_SESSION['usuario'] ?? 'estudiante';
     <!-- Encabezado Superior -->
     <header class="header-main">
         <div class="header-brand">
-            <!-- Logo Cloud Tux (asegúrate de que el archivo esté en la misma carpeta o ajusta la ruta/extensión) -->
             <img src="cloud_tux.png" alt="Cloud Tux Logo">
             <span>Panel DBA - Gestor de Prácticas</span>
         </div>
         <div class="header-user">
-            <span>Usuario: <strong><?= htmlspecialchars($usuario, ENT_QUOTES, 'UTF-8') ?></strong></span>
+            <span>Usuario: <strong><?= h($usuario) ?></strong></span>
             <a href="?action=logout" class="btn-logout">Cerrar Sesión</a>
         </div>
     </header>
@@ -254,16 +195,42 @@ $usuario = $_SESSION['usuario'] ?? 'estudiante';
             Seleccione una opción de administración para ejecutar las prácticas de PostgreSQL:
         </p>
 
+        <!-- Información del sistema -->
+        <div class="info-panel">
+            <div class="info-item">
+                <div class="label">Motor utilizado</div>
+                <div class="value"><?= h(MOTOR_NOMBRE) ?></div>
+            </div>
+            <div class="info-item">
+                <div class="label">Nombre de la base</div>
+                <div class="value"><?= h($baseDatos) ?></div>
+            </div>
+            <div class="info-item">
+                <div class="label">Usuario de conexión</div>
+                <div class="value"><?= h($usuarioConexion) ?></div>
+            </div>
+            <div class="info-item">
+                <div class="label">Versión de la Consola DBA</div>
+                <div class="value">v<?= h(CONSOLA_VERSION) ?></div>
+            </div>
+        </div>
+
+        <?php if (!$conectado): ?>
+            <div class="alert-info">
+                No se pudo conectar al servidor en este momento; se muestran los valores configurados al inicio de <code>index.php</code>.
+            </div>
+        <?php endif; ?>
+
         <div class="cards-grid">
             <!-- Tarjeta 1 -->
             <div class="card">
                 <div>
                     <h2 class="card-title">1. Conexión y Estado del Servidor</h2>
                     <p class="card-text">
-                        Verificar el estado del motor de base de datos, versión activa y parámetros de conexión (PDO / MySQLi).
+                        Verificar el estado del motor de base de datos, tamaño de la base, listado de tablas y las que consumen mayor espacio.
                     </p>
                 </div>
-                <a href="#" class="btn-action">Gestionar Conexión</a>
+                <a href="estado_servidor.php" class="btn-action">Gestionar Conexión</a>
             </div>
 
             <!-- Tarjeta 2 -->
@@ -329,6 +296,11 @@ $usuario = $_SESSION['usuario'] ?? 'estudiante';
             Josué Peñaranda Alvarado · Ximena Ortiz Llanes ·
             Diego Alvarado Salazar · Jesús Barboza Rios
         </span>
+        <div class="sistema">
+            Motor: <?= h(MOTOR_NOMBRE) ?> · Base: <?= h($baseDatos) ?> ·
+            Usuario de conexión: <?= h($usuarioConexion) ?> ·
+            Consola DBA v<?= h(CONSOLA_VERSION) ?>
+        </div>
     </footer>
 </body>
 </html>
