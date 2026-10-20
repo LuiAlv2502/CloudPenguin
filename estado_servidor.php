@@ -1,18 +1,6 @@
 <?php
 session_start();
-
-// ====== CONFIGURACIÓN (ajuste a su servidor PostgreSQL; igual que en index.php) ======
-const DB_HOST = 'localhost';
-const DB_PORT = '5432';
-const DB_NAME = 'postgres';
-const DB_USER = 'postgres';
-const DB_PASS = '';
-
-const CONSOLA_VERSION = '1.0';
-const MOTOR_NOMBRE    = 'PostgreSQL';
-// ======================================================================================
-
-function h($v): string { return htmlspecialchars((string)$v, ENT_QUOTES, 'UTF-8'); }
+require_once 'conexion.php';
 
 // Control de acceso
 if (!isset($_SESSION['autenticado']) || $_SESSION['autenticado'] !== true) {
@@ -27,15 +15,7 @@ $tablas      = [];
 $tamanoBytes = 0;
 
 try {
-    $pdo = new PDO(
-        sprintf('pgsql:host=%s;port=%s;dbname=%s', DB_HOST, DB_PORT, DB_NAME),
-        DB_USER, DB_PASS,
-        [
-            PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
-            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-            PDO::ATTR_TIMEOUT            => 5,
-        ]
-    );
+    $pdo = conectar();
 
     // --- Información general ---
     // version(), current_database(), current_user y now() son funciones del motor.
@@ -246,7 +226,7 @@ $maxTotal       = $topN ? max(1, (int)$topN[0]['total_bytes']) : 1;
             <div class="alert-error">
                 <strong>No fue posible conectar con la base de datos.</strong><br>
                 <?= h($error) ?><br>
-                Revise los datos de conexión al inicio de este archivo y que la extensión <code>pdo_pgsql</code> esté habilitada.
+                Revise los datos de <code>conexion.php</code> y que la extensión <code>pdo_pgsql</code> esté habilitada.
             </div>
             <a href="index.php" class="btn-action btn-secondary">← Volver al menú</a>
         <?php else: ?>
