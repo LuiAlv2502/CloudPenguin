@@ -1,18 +1,6 @@
 <?php
 session_start();
-
-// ====== CONFIGURACIÓN (ajuste a su servidor PostgreSQL) ======
-const DB_HOST = 'localhost';
-const DB_PORT = '5432';
-const DB_NAME = 'postgres';
-const DB_USER = 'postgres';
-const DB_PASS = '';
-
-const CONSOLA_VERSION = '1.0';
-const MOTOR_NOMBRE    = 'PostgreSQL';
-// =============================================================
-
-function h($v): string { return htmlspecialchars((string)$v, ENT_QUOTES, 'UTF-8'); }
+require_once 'conexion.php';
 
 // Cierre de sesión si se solicita por la URL (?action=logout)
 if (isset($_GET['action']) && $_GET['action'] === 'logout') {
@@ -36,12 +24,8 @@ $usuarioConexion = DB_USER;
 $conectado       = false;
 
 try {
-    $pdo = new PDO(
-        sprintf('pgsql:host=%s;port=%s;dbname=%s', DB_HOST, DB_PORT, DB_NAME),
-        DB_USER, DB_PASS,
-        [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION, PDO::ATTR_TIMEOUT => 5]
-    );
-    $fila = $pdo->query("SELECT current_database() AS bd, current_user AS usr")->fetch(PDO::FETCH_ASSOC);
+    $pdo  = conectar();
+    $fila = $pdo->query("SELECT current_database() AS bd, current_user AS usr")->fetch();
     $baseDatos       = $fila['bd'];
     $usuarioConexion = $fila['usr'];
     $conectado       = true;
@@ -217,7 +201,7 @@ try {
 
         <?php if (!$conectado): ?>
             <div class="alert-info">
-                No se pudo conectar al servidor en este momento; se muestran los valores configurados al inicio de <code>index.php</code>.
+                No se pudo conectar al servidor en este momento; se muestran los valores configurados en <code>conexion.php</code>.
             </div>
         <?php endif; ?>
 
