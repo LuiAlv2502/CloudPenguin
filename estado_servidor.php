@@ -226,7 +226,7 @@ $maxTotal       = $topN ? max(1, (int)$topN[0]['total_bytes']) : 1;
             <div class="alert-error">
                 <strong>No fue posible conectar con la base de datos.</strong><br>
                 <?= h($error) ?><br>
-                Revise los datos de <code>conexion.php</code> y que la extensión <code>pdo_pgsql</code> esté habilitada.
+                Revise el archivo <code>~/proyecto/env</code> y que la extensión <code>pdo_pgsql</code> esté habilitada.
             </div>
             <a href="index.php" class="btn-action btn-secondary">← Volver al menú</a>
         <?php else: ?>
@@ -360,8 +360,8 @@ $maxTotal       = $topN ? max(1, (int)$topN[0]['total_bytes']) : 1;
             Diego Alvarado Salazar · Jesús Barboza Rios
         </span>
         <div class="sistema">
-            Motor: <?= h(MOTOR_NOMBRE) ?> · Base: <?= h($info['base_datos'] ?? DB_NAME) ?> ·
-            Usuario de conexión: <?= h($info['usuario_conectado'] ?? DB_USER) ?> ·
+            Motor: <?= h(MOTOR_NOMBRE) ?> · Base: <?= h($info['base_datos'] ?? env('DB_NAME')) ?> ·
+            Usuario de conexión: <?= h($info['usuario_conectado'] ?? db_usuario()) ?> ·
             Consola DBA v<?= h(CONSOLA_VERSION) ?>
         </div>
     </footer>
