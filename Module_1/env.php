@@ -1,6 +1,6 @@
 <?php
 /**
- * env.php - Lee el archivo de configuración ~/proyecto/env
+ * env.php - Lee el archivo de configuración ~/proyecto/.env
  * (fuera de public_html). No contiene ningún dato fijo.
  */
 
@@ -13,10 +13,10 @@ function env_home(): string
             return $info['dir'];
         }
     }
-    return dirname(__DIR__, 2); // respaldo: /home/usuario
+    return dirname(__DIR__, 3); // respaldo: /home/usuario
 }
 
-/** Ruta del archivo de configuración: ~/proyecto/env */
+/** Ruta del archivo de configuración: ~/proyecto/.env */
 function env_ruta(): string
 {
     $explicita = getenv('DBA_ENV_FILE');

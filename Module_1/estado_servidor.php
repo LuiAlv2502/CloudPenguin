@@ -1,10 +1,10 @@
 <?php
 session_start();
-require_once 'conexion.php';
+require_once __DIR__ . '/../conexion.php';
 
 // Control de acceso
 if (!isset($_SESSION['autenticado']) || $_SESSION['autenticado'] !== true) {
-    header('Location: login.php');
+    header('Location: ../login.php');
     exit;
 }
 
@@ -202,12 +202,12 @@ $maxTotal       = $topN ? max(1, (int)$topN[0]['total_bytes']) : 1;
 
     <header class="header-main">
         <div class="header-brand">
-            <img src="cloud_tux.png" alt="Cloud Tux Logo">
+            <img src="../cloud_tux.png" alt="Cloud Tux Logo">
             <span>Panel DBA - Gestor de Prácticas</span>
         </div>
         <div class="header-user">
             <span>Usuario: <strong><?= h($usuario) ?></strong></span>
-            <a href="index.php?action=logout" class="btn-logout">Cerrar Sesión</a>
+            <a href="../index.php?action=logout" class="btn-logout">Cerrar Sesión</a>
         </div>
     </header>
 
@@ -226,9 +226,9 @@ $maxTotal       = $topN ? max(1, (int)$topN[0]['total_bytes']) : 1;
             <div class="alert-error">
                 <strong>No fue posible conectar con la base de datos.</strong><br>
                 <?= h($error) ?><br>
-                Revise el archivo <code>~/proyecto/env</code> y que la extensión <code>pdo_pgsql</code> esté habilitada.
+                Revise el archivo <code>~/proyecto/.env</code> y que la extensión <code>pdo_pgsql</code> esté habilitada.
             </div>
-            <a href="index.php" class="btn-action btn-secondary">← Volver al menú</a>
+            <a href="../index.php" class="btn-action btn-secondary">← Volver al menú</a>
         <?php else: ?>
 
         <h2 class="section-title" style="margin-top:0">Información general</h2>
@@ -346,7 +346,7 @@ $maxTotal       = $topN ? max(1, (int)$topN[0]['total_bytes']) : 1;
         </div>
 
         <div style="margin-top:28px">
-            <a href="index.php" class="btn-action btn-secondary">← Volver al menú</a>
+            <a href="../index.php" class="btn-action btn-secondary">← Volver al menú</a>
             <a href="estado_servidor.php" class="btn-action">Actualizar consulta</a>
         </div>
 

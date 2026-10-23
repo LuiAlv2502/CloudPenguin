@@ -1,10 +1,10 @@
 <?php
 session_start();
-require_once 'conexion.php';
+require_once __DIR__ . '/../conexion.php';
 
 // Control de acceso
 if (!isset($_SESSION['autenticado']) || $_SESSION['autenticado'] !== true) {
-    header('Location: login.php');
+    header('Location: ../login.php');
     exit;
 }
 
@@ -13,7 +13,7 @@ $usuario = $_SESSION['usuario'] ?? 'estudiante';
 // Rutas FIJAS, calculadas a partir del HOME de la cuenta (nada viene de GET/POST)
 $home     = env_home();
 $dirResp  = $home . '/proyecto/respaldos';
-$script   = $home . '/proyecto/backup.sh';
+$script   = __DIR__ . '/backup.sh';
 $bitacora = $dirResp . '/respaldos.log';
 
 if (empty($_SESSION['token_resp'])) {
@@ -249,12 +249,12 @@ $usuarioConexion = db_usuario();
 
 <header class="header-main">
     <div class="header-brand">
-        <img src="cloud_tux.png" alt="Cloud Tux Logo">
+        <img src="../cloud_tux.png" alt="Cloud Tux Logo">
         <span>Panel DBA - Gestor de Prácticas</span>
     </div>
     <div class="header-user">
         <span>Usuario: <strong><?= h($usuario) ?></strong></span>
-        <a href="index.php?action=logout" class="btn-logout">Cerrar Sesión</a>
+        <a href="../index.php?action=logout" class="btn-logout">Cerrar Sesión</a>
     </div>
 </header>
 
@@ -280,7 +280,7 @@ $usuarioConexion = db_usuario();
             <button type="submit" class="btn-action">Generar nuevo respaldo</button>
         </form>
         <a href="respaldos.php" class="btn-action btn-secondary">Actualizar listado</a>
-        <a href="index.php" class="btn-action btn-secondary">← Volver al menú</a>
+        <a href="../index.php" class="btn-action btn-secondary">← Volver al menú</a>
     </div>
 
     <h2 class="section-title">Resumen</h2>

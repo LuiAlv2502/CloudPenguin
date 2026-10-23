@@ -2,10 +2,10 @@
 
 /**
  * conexion.php - Conexión a PostgreSQL del Panel DBA
- * Los datos de conexión se leen de ~/proyecto/env (ver env.php).
+ * Los datos de conexión se leen de ~/proyecto/.env (ver env.php).
  */
 
-require_once __DIR__ . '/env.php';
+require_once __DIR__ . '/Module_1/env.php';
 
 const CONSOLA_VERSION = '1.0';
 define('MOTOR_NOMBRE', env('DB_ENGINE', 'PostgreSQL'));

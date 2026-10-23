@@ -207,7 +207,7 @@ try {
 
         <?php if (!$conectado): ?>
             <div class="alert-info">
-                No se pudo conectar al servidor en este momento; se muestran los valores configurados en el archivo <code>~/proyecto/env</code>.
+                No se pudo conectar al servidor en este momento; se muestran los valores configurados en el archivo <code>~/proyecto/.env</code>.
             </div>
         <?php endif; ?>
 
@@ -217,7 +217,7 @@ try {
                     <h2 class="card-title">Proyecto 01 · Monitor de Base de Datos</h2>
                     <p class="card-text">Estado del motor, tamaño de la base, listado de tablas, registros y las tablas que consumen mayor espacio.</p>
                 </div>
-                <a href="estado_servidor.php" class="btn-action">Abrir Monitor</a>
+                <a href="Module_1/estado_servidor.php" class="btn-action">Abrir Monitor</a>
             </div>
 
             <div class="card">
@@ -225,7 +225,7 @@ try {
                     <h2 class="card-title">Proyecto 02 · Respaldos</h2>
                     <p class="card-text">Generar respaldos comprimidos con pg_dump, consultarlos desde la interfaz y revisar la bitácora de ejecución.</p>
                 </div>
-                <a href="respaldos.php" class="btn-action">Abrir Respaldos</a>
+                <a href="Module_2/respaldos.php" class="btn-action">Abrir Respaldos</a>
             </div>
 
             <div class="card proximo">
