@@ -23,7 +23,7 @@ function env_ruta(): string
     if ($explicita && is_readable($explicita)) {
         return $explicita;
     }
-    return env_home() . '/proyecto/env';
+    return env_home() . '/proyecto/.env';
 }
 
 function env_cargar(): array
