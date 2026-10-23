@@ -31,7 +31,7 @@ En el servidor, coloque el proyecto en `~/proyecto`. La interfaz ejecuta `Module
 El servidor necesita Bash, `pg_dump`, `gzip` y la extensión PHP `pdo_pgsql`. El usuario con el que corre PHP debe poder ejecutar el script y acceder a `.env`; el script necesita permiso de ejecución:
 
 ```sh
-chmod 700 ~/proyecto/Module_2/backup.sh
+chmod 700 ~/public_html/CloudPenguin/Module_2/backup.sh
 ```
 
 Al crear un respaldo, el script comprueba tanto el resultado de `pg_dump` como la integridad gzip antes de conservar el archivo. La interfaz lista los archivos `respaldo_*.sql.gz` y muestra las últimas entradas de la bitácora.
