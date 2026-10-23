@@ -13,7 +13,7 @@ $usuario = $_SESSION['usuario'] ?? 'estudiante';
 // Rutas FIJAS, calculadas a partir del HOME de la cuenta (nada viene de GET/POST)
 $home     = env_home();
 $dirResp  = $home . '/proyecto/respaldos';
-$script   = $home . '/dba_scripts/backup.sh';
+$script   = $home . '/proyecto/backup.sh';
 $bitacora = $dirResp . '/respaldos.log';
 
 if (empty($_SESSION['token_resp'])) {
