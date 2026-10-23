@@ -1,5 +1,7 @@
 <?php
-//Contraseña: MiClave123
-//Usuario: TUX
-$usuario = 'TUX';
-$clave_hash = '$2y$12$2Y.wlcwWCETr7PHSSy0cB.y8Mo3gcbu9FJ1W66MjOBeH85NpYCDk6';
+// Usuario y hash de la contraseña de la Consola DBA.
+// Los valores se leen de ~/proyecto/env (no se guardan en el repositorio).
+require_once __DIR__ . '/env.php';
+ 
+$usuario    = env('DBA_USER', 'TUX');
+$clave_hash = env('DBA_PASS_HASH');
