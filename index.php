@@ -19,8 +19,8 @@ if (!isset($_SESSION['autenticado']) || $_SESSION['autenticado'] !== true) {
 $usuario = $_SESSION['usuario'] ?? 'estudiante';
 
 // Datos del sistema: se leen del servidor; si falla, se usan los configurados
-$baseDatos       = DB_NAME;
-$usuarioConexion = DB_USER;
+$baseDatos       = env('DB_NAME');
+$usuarioConexion = db_usuario();
 $conectado       = false;
 
 try {
@@ -139,7 +139,13 @@ try {
 
         code { background: rgba(0,0,0,.06); padding: 1px 6px; border-radius: 4px; font-size: 12px; }
 
-        .footer-main {
+        .btn-disabled {
+      background-color: #c9d3d1; color: #61716e; cursor: not-allowed; pointer-events: none;
+    }
+    .card.proximo { border-left-color: #c9d3d1; }
+    .card.proximo .card-title { color: #61716e; }
+
+    .footer-main {
             background-color: var(--dark); color: #cfdcda; text-align: center;
             padding: 18px 24px; font-size: 12px; line-height: 1.7; margin-top: 36px;
         }
@@ -176,7 +182,7 @@ try {
     <main class="container">
         <h1 class="page-title">Menú Principal de Tareas de Administrador</h1>
         <p class="page-description">
-            Seleccione una opción de administración para ejecutar las prácticas de PostgreSQL:
+            Seleccione un módulo de la Consola DBA:
         </p>
 
         <!-- Información del sistema -->
@@ -201,78 +207,60 @@ try {
 
         <?php if (!$conectado): ?>
             <div class="alert-info">
-                No se pudo conectar al servidor en este momento; se muestran los valores configurados en <code>conexion.php</code>.
+                No se pudo conectar al servidor en este momento; se muestran los valores configurados en el archivo <code>~/proyecto/env</code>.
             </div>
         <?php endif; ?>
 
         <div class="cards-grid">
-            <!-- Tarjeta 1 -->
             <div class="card">
                 <div>
-                    <h2 class="card-title">1. Conexión y Estado del Servidor</h2>
-                    <p class="card-text">
-                        Verificar el estado del motor de base de datos, tamaño de la base, listado de tablas y las que consumen mayor espacio.
-                    </p>
+                    <h2 class="card-title">Proyecto 01 · Monitor de Base de Datos</h2>
+                    <p class="card-text">Estado del motor, tamaño de la base, listado de tablas, registros y las tablas que consumen mayor espacio.</p>
                 </div>
-                <a href="estado_servidor.php" class="btn-action">Gestionar Conexión</a>
+                <a href="estado_servidor.php" class="btn-action">Abrir Monitor</a>
             </div>
 
-            <!-- Tarjeta 2 -->
             <div class="card">
                 <div>
-                    <h2 class="card-title">2. Gestión de Esquemas y Tablas</h2>
-                    <p class="card-text">
-                        Crear, modificar o listar tablas, definir tipos de datos y restricciones de integridad referencial.
-                    </p>
+                    <h2 class="card-title">Proyecto 02 · Respaldos</h2>
+                    <p class="card-text">Generar respaldos comprimidos con pg_dump, consultarlos desde la interfaz y revisar la bitácora de ejecución.</p>
                 </div>
-                <a href="#" class="btn-action">Ver Esquemas</a>
+                <a href="respaldos.php" class="btn-action">Abrir Respaldos</a>
             </div>
 
-            <!-- Tarjeta 3 -->
-            <div class="card">
+            <div class="card proximo">
                 <div>
-                    <h2 class="card-title">3. Usuarios y Privilegios (GRANT/REVOKE)</h2>
-                    <p class="card-text">
-                        Administrar roles, control de accesos de usuarios y asignación de permisos sobre las bases de datos.
-                    </p>
+                    <h2 class="card-title">Proyecto 03 · Próximamente</h2>
+                    <p class="card-text">Este módulo se incorporará en una de las siguientes semanas del curso.</p>
                 </div>
-                <a href="#" class="btn-action">Control de Accesos</a>
+                <span class="btn-action btn-disabled">Módulo disponible próximamente</span>
             </div>
 
-            <!-- Tarjeta 4 -->
-            <div class="card">
+            <div class="card proximo">
                 <div>
-                    <h2 class="card-title">4. Respaldos y Restauración (Dump)</h2>
-                    <p class="card-text">
-                        Generar respaldos lógicos de bases de datos mediante comandos del sistema y exportación de estructuras.
-                    </p>
+                    <h2 class="card-title">Proyecto 04 · Próximamente</h2>
+                    <p class="card-text">Este módulo se incorporará en una de las siguientes semanas del curso.</p>
                 </div>
-                <a href="#" class="btn-action">Respaldos</a>
+                <span class="btn-action btn-disabled">Módulo disponible próximamente</span>
             </div>
 
-            <!-- Tarjeta 5 -->
-            <div class="card">
+            <div class="card proximo">
                 <div>
-                    <h2 class="card-title">5. Monitoreo y Consultas (SQL)</h2>
-                    <p class="card-text">
-                        Ejecutar consultas de diagnóstico, revisar procesos activos y analizar planes de ejecución (EXPLAIN).
-                    </p>
+                    <h2 class="card-title">Proyecto 05 · Próximamente</h2>
+                    <p class="card-text">Este módulo se incorporará en una de las siguientes semanas del curso.</p>
                 </div>
-                <a href="#" class="btn-action">Consola SQL</a>
+                <span class="btn-action btn-disabled">Módulo disponible próximamente</span>
             </div>
 
-            <!-- Tarjeta 6 -->
-            <div class="card">
+            <div class="card proximo">
                 <div>
-                    <h2 class="card-title">6. Bitácoras y Logs del Sistema</h2>
-                    <p class="card-text">
-                        Revisar los registros de errores y auditoría del motor de base de datos desde el entorno web.
-                    </p>
+                    <h2 class="card-title">Proyecto 06 · Próximamente</h2>
+                    <p class="card-text">Este módulo se incorporará en una de las siguientes semanas del curso.</p>
                 </div>
-                <a href="#" class="btn-action">Ver Logs</a>
+                <span class="btn-action btn-disabled">Módulo disponible próximamente</span>
             </div>
         </div>
-    </main>
+</main>
 
     <footer class="footer-main">
         <strong>Grupo 6 · Cloud TUX</strong><br>
