@@ -1,21 +1,36 @@
 <?php
+
 /**
  * conexion.php - Conexión a PostgreSQL del Panel DBA
- * AJUSTE estos valores a su servidor.
+ * Los datos de conexión se leen de ~/proyecto/env (ver env.php).
  */
-const DB_HOST = 'localhost';
-const DB_PORT = '5432';
-const DB_NAME = '******';
-const DB_USER = '*******';
-const DB_PASS = '*******';
+
+require_once __DIR__ . '/env.php';
 
 const CONSOLA_VERSION = '1.0';
-const MOTOR_NOMBRE    = 'PostgreSQL';
+define('MOTOR_NOMBRE', env('DB_ENGINE', 'PostgreSQL'));
+
+/** Usuario de PostgreSQL: el del env o, si falta, el usuario Linux de la cuenta */
+function db_usuario(): string
+{
+    $u = env('DB_USER');
+    if ($u !== null && $u !== '') {
+        return $u;
+    }
+    $info = function_exists('posix_getpwuid') ? posix_getpwuid(posix_geteuid()) : [];
+    return $info['name'] ?? '';
+}
 
 function conectar(): PDO
 {
-    $dsn = sprintf('pgsql:host=%s;port=%s;dbname=%s', DB_HOST, DB_PORT, DB_NAME);
-    return new PDO($dsn, DB_USER, DB_PASS, [
+    $dsn = sprintf(
+        'pgsql:host=%s;port=%s;dbname=%s',
+        env('DB_HOST', 'localhost'),
+        env('DB_PORT', '5432'),
+        env('DB_NAME')
+    );
+
+    return new PDO($dsn, db_usuario(), env('DB_PASS'), [
         PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
         PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
         PDO::ATTR_TIMEOUT            => 5,
