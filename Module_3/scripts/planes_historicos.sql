@@ -19,3 +19,21 @@ CREATE TABLE IF NOT EXISTS dba_planes (
     plan_texto   TEXT          NOT NULL,          -- salida de EXPLAIN en texto
     plan_json    JSONB         NOT NULL           -- salida de EXPLAIN (FORMAT JSON)
 );
+
+CREATE TABLE IF NOT EXISTS dba_indices_prueba (
+    nombre_indice     VARCHAR(63) PRIMARY KEY,
+    creado_por_modulo BOOLEAN     NOT NULL,
+    actualizado       TIMESTAMP   NOT NULL DEFAULT now()
+);
+
+-- Los nombres son exclusivos de la mejora de este módulo. Registrar los
+-- existentes permite que el botón de reversión también gestione ensayos previos.
+INSERT INTO dba_indices_prueba (nombre_indice, creado_por_modulo)
+SELECT 'idx_ventas_id_cliente', TRUE
+WHERE to_regclass('idx_ventas_id_cliente') IS NOT NULL
+ON CONFLICT (nombre_indice) DO NOTHING;
+
+INSERT INTO dba_indices_prueba (nombre_indice, creado_por_modulo)
+SELECT 'idx_detalle_id_venta', TRUE
+WHERE to_regclass('idx_detalle_id_venta') IS NOT NULL
+ON CONFLICT (nombre_indice) DO NOTHING;

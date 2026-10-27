@@ -62,6 +62,13 @@ function obtener_plan(PDO $pdo, string $sql, int $valor): array
     ];
 }
 
+function indice_existe(PDO $pdo, string $nombre): bool
+{
+    $st = $pdo->prepare('SELECT (to_regclass(:nombre) IS NOT NULL)::text');
+    $st->execute([':nombre' => $nombre]);
+    return $st->fetchColumn() === 'true';
+}
+
 /** Recorre el árbol del plan y devuelve una fila por nodo */
 function nodos_plan(array $nodo, int $nivel = 0, array &$filas = []): array
 {
@@ -157,59 +164,135 @@ $indices = [];
 $tablaHist = false;
 $referencia = null;
 $historial = [];
+$tablaEstadoIndices = false;
 
 try {
     $pdo = conectar();
 
-    // ---------- Acción: ensayar la mejora ----------
-    // Un solo clic ejecuta, dentro de una transacción:
-    //   1. revertir: quita los índices de la mejora (estado "ANTES")
-    //   2. guarda en dba_planes el plan ANTES de Q01 y Q02 (caso, fecha, cuenta)
-    //   3. aplicar: crea los índices y actualiza estadísticas
-    // Después, la página muestra el plan actual en vivo junto al guardado.
-    if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['accion'] ?? '') === 'ensayar') {
+    // ---------- Acciones de la mejora ----------
+    $accion = $_POST['accion'] ?? '';
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' && in_array($accion, ['ensayar', 'revertir'], true)) {
         $tokenOk = isset($_POST['token']) && hash_equals($_SESSION['token_diag'], (string)$_POST['token']);
-        $existe  = $pdo->query("SELECT to_regclass('dba_planes') IS NOT NULL")->fetchColumn();
+        $existePlanes = $pdo->query("SELECT (to_regclass('dba_planes') IS NOT NULL)::text")->fetchColumn() === 'true';
+        $existeEstado = $pdo->query("SELECT (to_regclass('dba_indices_prueba') IS NOT NULL)::text")->fetchColumn() === 'true';
 
         if (!$tokenOk) {
             $_SESSION['flash_diag'] = ['error', 'Solicitud no válida. Recargue la página e intente de nuevo.'];
-        } elseif (!$existe) {
+        } elseif (!$existeEstado) {
+            $_SESSION['flash_diag'] = ['error', 'Falta la tabla de control de índices. Ejecute o vuelva a ejecutar Module_3/scripts/planes_historicos.sql.'];
+        } elseif ($accion === 'ensayar' && !$existePlanes) {
             $_SESSION['flash_diag'] = ['error', 'No existe la tabla dba_planes. Ejecute primero Module_3/scripts/planes_historicos.sql.'];
         } else {
             try {
                 $pdo->beginTransaction();
 
-                foreach ($mejora['revertir'] as $sentencia) {
-                    $pdo->exec($sentencia);
-                }
+                if ($accion === 'ensayar') {
+                    $st = $pdo->prepare("
+                        SELECT creado_por_modulo::text
+                        FROM dba_indices_prueba
+                        WHERE nombre_indice = :nombre
+                    ");
+                    $indicesPrevios = [];
+                    foreach ($mejora['indices'] as $nombre => $indice) {
+                        $st->execute([':nombre' => $nombre]);
+                        $gestionado = $st->fetchColumn() === 'true';
+                        if ($gestionado) {
+                            $pdo->exec('DROP INDEX IF EXISTS "' . $nombre . '"');
+                        } elseif (indice_existe($pdo, $nombre)) {
+                            $indicesPrevios[] = $nombre;
+                        }
+                    }
 
-                $ins = $pdo->prepare("
-                    INSERT INTO dba_planes (caso, parametro, etapa, costo_total, filas_est, plan_texto, plan_json)
-                    VALUES (:caso, :parametro, 'ANTES', :costo, :filas, :texto, CAST(:json AS jsonb))
-                ");
-                foreach ($catalogo as $id => $c) {
-                    $p = obtener_plan($pdo, $c['sql'], $valor);
+                    foreach ($mejora['tablas'] as $tabla) {
+                        $pdo->exec('ANALYZE ' . $tabla);
+                    }
+
+                    $planAntes = obtener_plan($pdo, $caso['sql'], $valor);
+                    $ins = $pdo->prepare("
+                        INSERT INTO dba_planes (caso, parametro, etapa, costo_total, filas_est, plan_texto, plan_json)
+                        VALUES (:caso, :parametro, 'ANTES', :costo, :filas, :texto, CAST(:json AS jsonb))
+                    ");
                     $ins->execute([
-                        ':caso'      => $id,
-                        ':parametro' => $c['param']['etiqueta'] . ' = ' . $valor,
-                        ':costo'     => $p['raiz']['Total Cost'] ?? null,
-                        ':filas'     => $p['raiz']['Plan Rows'] ?? null,
-                        ':texto'     => $p['texto'],
-                        ':json'      => $p['json'],
+                        ':caso'      => $casoId,
+                        ':parametro' => $caso['param']['etiqueta'] . ' = ' . $valor,
+                        ':costo'     => $planAntes['raiz']['Total Cost'] ?? null,
+                        ':filas'     => $planAntes['raiz']['Plan Rows'] ?? null,
+                        ':texto'     => $planAntes['texto'],
+                        ':json'      => $planAntes['json'],
                     ]);
-                }
 
-                foreach ($mejora['aplicar'] as $sentencia) {
-                    $pdo->exec($sentencia);
+                    $registrarIndice = $pdo->prepare("
+                        INSERT INTO dba_indices_prueba (nombre_indice, creado_por_modulo)
+                        VALUES (:nombre, :creado)
+                        ON CONFLICT (nombre_indice) DO UPDATE
+                        SET creado_por_modulo = EXCLUDED.creado_por_modulo,
+                            actualizado = now()
+                    ");
+                    foreach ($mejora['indices'] as $nombre => $indice) {
+                        $existe = indice_existe($pdo, $nombre);
+                        if (!$existe) {
+                            $pdo->exec($indice['sql']);
+                            $registrarIndice->execute([':nombre' => $nombre, ':creado' => true]);
+                        } else {
+                            $registrarIndice->execute([':nombre' => $nombre, ':creado' => false]);
+                        }
+                    }
+
+                    foreach ($mejora['tablas'] as $tabla) {
+                        $pdo->exec('ANALYZE ' . $tabla);
+                    }
+                    $mensaje = 'Ensayo listo para ' . $casoId . ' con ID de cliente ' . $valor
+                             . ': se guardó el plan ANTES y se aplicaron los índices de la mejora.';
+                    if ($indicesPrevios) {
+                        $mensaje .= ' El plan ANTES ya incluía índices preexistentes/no gestionados: '
+                                  . implode(', ', $indicesPrevios) . '.';
+                    }
+                } else {
+                    $eliminados = [];
+                    $conservados = [];
+                    $st = $pdo->prepare("
+                        SELECT creado_por_modulo::text
+                        FROM dba_indices_prueba
+                        WHERE nombre_indice = :nombre
+                    ");
+                    foreach ($mejora['indices'] as $nombre => $indice) {
+                        $st->execute([':nombre' => $nombre]);
+                        $gestionado = $st->fetchColumn() === 'true';
+
+                        if ($gestionado) {
+                            if (indice_existe($pdo, $nombre)) {
+                                $pdo->exec('DROP INDEX "' . $nombre . '"');
+                                $eliminados[] = $nombre;
+                            }
+                            $del = $pdo->prepare("
+                                DELETE FROM dba_indices_prueba
+                                WHERE nombre_indice = :nombre
+                            ");
+                            $del->execute([':nombre' => $nombre]);
+                        } elseif (indice_existe($pdo, $nombre)) {
+                            $conservados[] = $nombre;
+                        }
+                    }
+                    foreach ($mejora['tablas'] as $tabla) {
+                        $pdo->exec('ANALYZE ' . $tabla);
+                    }
+
+                    $mensaje = $eliminados
+                        ? 'Se revirtió la mejora. Índices quitados: ' . implode(', ', $eliminados) . '.'
+                        : 'No había índices de la mejora gestionados por el módulo para quitar.';
+                    if ($conservados) {
+                        $mensaje .= ' Se conservaron índices preexistentes/no gestionados: '
+                                  . implode(', ', $conservados) . '.';
+                    }
                 }
 
                 $pdo->commit();
-                $_SESSION['flash_diag'] = ['ok', 'Ensayo realizado: se guardó el plan ANTES de Q01 y Q02 y se aplicó la mejora (índices idx_ventas_id_cliente e idx_detalle_id_venta).'];
+                $_SESSION['flash_diag'] = ['ok', $mensaje];
             } catch (PDOException $e) {
                 if ($pdo->inTransaction()) {
                     $pdo->rollBack();
                 }
-                $_SESSION['flash_diag'] = ['error', 'ERROR en el ensayo; no se aplicó ningún cambio. ' . $e->getMessage()];
+                $_SESSION['flash_diag'] = ['error', 'ERROR al procesar la acción; no se aplicó ningún cambio. ' . $e->getMessage()];
             }
         }
         header('Location: diagnostico.php?caso=' . urlencode($casoId) . '&valor=' . $valor);
@@ -245,8 +328,21 @@ try {
     $indices = $st->fetchAll();
 
     // ---------- Plan histórico (referencia ANTES) ----------
-    $tablaHist = (bool)$pdo->query("SELECT to_regclass('dba_planes') IS NOT NULL")->fetchColumn();
+    $tablaHist = $pdo->query("SELECT (to_regclass('dba_planes') IS NOT NULL)::text")->fetchColumn() === 'true';
+    $tablaEstadoIndices = $pdo->query("SELECT (to_regclass('dba_indices_prueba') IS NOT NULL)::text")->fetchColumn() === 'true';
     if ($tablaHist) {
+        $parametroActual = $caso['param']['etiqueta'] . ' = ' . $valor;
+        $st = $pdo->prepare("
+            SELECT id, caso, to_char(fecha, 'DD/MM/YYYY HH24:MI:SS') AS fecha, cuenta, base_datos,
+                   parametro, etapa, costo_total, filas_est, plan_texto, plan_json::text AS plan_json
+            FROM dba_planes
+            WHERE caso = :caso AND etapa = 'ANTES' AND parametro = :parametro
+            ORDER BY fecha DESC, id DESC
+            LIMIT 1
+        ");
+        $st->execute([':caso' => $casoId, ':parametro' => $parametroActual]);
+        $referencia = $st->fetch() ?: null;
+
         $st = $pdo->prepare("
             SELECT id, caso, to_char(fecha, 'DD/MM/YYYY HH24:MI:SS') AS fecha, cuenta, base_datos,
                    parametro, etapa, costo_total, filas_est, plan_texto, plan_json::text AS plan_json
@@ -257,7 +353,6 @@ try {
         ");
         $st->execute([':caso' => $casoId]);
         $historial  = $st->fetchAll();
-        $referencia = $historial[0] ?? null;
     }
 } catch (PDOException $e) {
     $error = $e->getMessage();
@@ -635,7 +730,7 @@ $variacion = ($costoAntes !== null && $costoAntes > 0)
             <?php if (!$tablaHist): ?>
                 <div class="alert-aviso">No existe la tabla <code>dba_planes</code>. Ejecute <code>Module_3/scripts/planes_historicos.sql</code> para poder guardar el plan anterior.</div>
             <?php elseif (!$referencia): ?>
-                <div class="alert-aviso">Todavía no hay un plan anterior guardado para <?= h($casoId) ?>. Presione «Ensayar mejora» para guardar el plan ANTES y aplicar la mejora.</div>
+                <div class="alert-aviso">No hay una comparación guardada para <?= h($casoId) ?> con el ID <?= (int)$valor ?>. Presione «Probar mejora con este ID» para guardar el plan anterior y comparar exactamente el mismo valor.</div>
             <?php else: ?>
                 <div class="resumen-costo">
                     <div class="info-item"><div class="label">Costo antes</div><div class="value"><?= num($costoAntes) ?></div></div>
@@ -662,20 +757,30 @@ $variacion = ($costoAntes !== null && $costoAntes > 0)
                 </div>
             <?php endif; ?>
 
-            <?php if ($tablaHist): ?>
-                <form method="POST" action="diagnostico.php" style="margin-top:16px">
-                    <input type="hidden" name="token" value="<?= h($_SESSION['token_diag']) ?>">
-                    <input type="hidden" name="accion" value="ensayar">
-                    <input type="hidden" name="caso" value="<?= h($casoId) ?>">
-                    <input type="hidden" name="valor" value="<?= (int)$valor ?>">
-                    <button type="submit" class="btn-action">Ensayar mejora</button>
-                </form>
+            <?php if (!$tablaEstadoIndices): ?>
+                <div class="alert-aviso" style="margin-top:16px">Ejecute o vuelva a ejecutar <code>Module_3/scripts/planes_historicos.sql</code> para habilitar los controles de probar y revertir.</div>
+            <?php elseif ($tablaHist): ?>
+                <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:16px">
+                    <form method="POST" action="diagnostico.php">
+                        <input type="hidden" name="token" value="<?= h($_SESSION['token_diag']) ?>">
+                        <input type="hidden" name="accion" value="ensayar">
+                        <input type="hidden" name="caso" value="<?= h($casoId) ?>">
+                        <input type="hidden" name="valor" value="<?= (int)$valor ?>">
+                        <button type="submit" class="btn-action">Probar mejora con este ID</button>
+                    </form>
+                    <form method="POST" action="diagnostico.php" onsubmit="return confirm('Se quitarán solo los índices registrados como creados por el Módulo 03. No se modificarán los datos. ¿Continuar?');">
+                        <input type="hidden" name="token" value="<?= h($_SESSION['token_diag']) ?>">
+                        <input type="hidden" name="accion" value="revertir">
+                        <input type="hidden" name="caso" value="<?= h($casoId) ?>">
+                        <input type="hidden" name="valor" value="<?= (int)$valor ?>">
+                        <button type="submit" class="btn-action btn-secondary">Revertir mejora</button>
+                    </form>
+                </div>
                 <p class="nota">
-                    Ejecuta en una sola transacción: (1) quita los índices de la mejora, (2) guarda en <code>dba_planes</code>
-                    el plan ANTES de Q01 y Q02 con caso, fecha, cuenta y parámetro, y (3) crea los índices
-                    <code>idx_ventas_id_cliente</code> e <code>idx_detalle_id_venta</code>. Las sentencias están fijas en el servidor
-                    (<code>mejora.php</code>); si algo falla, no se aplica ningún cambio.
+                    «Probar mejora» guarda el plan ANTES de <code><?= h($casoId) ?></code> con el ID <?= (int)$valor ?> y luego aplica los índices. «Revertir mejora» quita únicamente los índices registrados como gestionados por este módulo. Los índices preexistentes/no gestionados se conservan; los datos nunca se borran ni se cambian.
                 </p>
+            <?php else: ?>
+                <div class="alert-aviso" style="margin-top:16px">Primero cree la tabla <code>dba_planes</code> ejecutando <code>Module_3/scripts/planes_historicos.sql</code>.</div>
             <?php endif; ?>
 
             <?php if (count($historial) > 1): ?>
@@ -690,7 +795,7 @@ $variacion = ($costoAntes !== null && $costoAntes > 0)
                         </tbody>
                     </table>
                 </div>
-                <p class="nota">La comparación usa la referencia más reciente.</p>
+                <p class="nota">La tabla muestra los últimos ensayos de <?= h($casoId) ?>. La comparación superior usa solo uno hecho con el mismo ID seleccionado.</p>
             <?php endif; ?>
         </div>
 
