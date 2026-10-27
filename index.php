@@ -214,7 +214,7 @@ try {
         <div class="cards-grid">
             <div class="card">
                 <div>
-                    <h2 class="card-title">Proyecto 01 · Monitor de Base de Datos</h2>
+                    <h2 class="card-title">Modulo 01 · Monitor de Base de Datos</h2>
                     <p class="card-text">Estado del motor, tamaño de la base, listado de tablas, registros y las tablas que consumen mayor espacio.</p>
                 </div>
                 <a href="Module_1/estado_servidor.php" class="btn-action">Abrir Monitor</a>
@@ -222,7 +222,7 @@ try {
 
             <div class="card">
                 <div>
-                    <h2 class="card-title">Proyecto 02 · Respaldos</h2>
+                    <h2 class="card-title">Modulo 02 · Respaldos</h2>
                     <p class="card-text">Generar respaldos comprimidos con pg_dump, consultarlos desde la interfaz y revisar la bitácora de ejecución.</p>
                 </div>
                 <a href="Module_2/respaldos.php" class="btn-action">Abrir Respaldos</a>
@@ -230,7 +230,7 @@ try {
 
             <div class="card">
                 <div>
-                    <h2 class="card-title">Proyecto 03 · Diagnóstico de consultas</h2>
+                    <h2 class="card-title">Modulo 03 · Diagnóstico de consultas</h2>
                     <p class="card-text">Plan de ejecución (EXPLAIN) de las consultas Q01 y Q02, interpretación de índices, filas y costos, y comparación antes/después de la mejora.</p>
                 </div>
                 <a href="Module_3/diagnostico.php" class="btn-action">Abrir Diagnóstico</a>
@@ -238,7 +238,7 @@ try {
 
             <div class="card">
                 <div>
-                    <h2 class="card-title">Proyecto 04 · Mantenimiento básico</h2>
+                    <h2 class="card-title">Modulo 04 · Mantenimiento básico</h2>
                     <p class="card-text">Panel de tablas propias con filas estimadas, tamaños e índices, actualización de estadísticas (ANALYZE) con confirmación y bitácora de las últimas ejecuciones.</p>
                 </div>
                 <a href="Module_4/mantenimiento.php" class="btn-action">Abrir Mantenimiento</a>
@@ -246,7 +246,7 @@ try {
 
             <div class="card proximo">
                 <div>
-                    <h2 class="card-title">Proyecto 05 · Próximamente</h2>
+                    <h2 class="card-title">Modulo 05 · Próximamente</h2>
                     <p class="card-text">Este módulo se incorporará en una de las siguientes semanas del curso.</p>
                 </div>
                 <span class="btn-action btn-disabled">Módulo disponible próximamente</span>
@@ -254,7 +254,7 @@ try {
 
             <div class="card proximo">
                 <div>
-                    <h2 class="card-title">Proyecto 06 · Próximamente</h2>
+                    <h2 class="card-title">Modulo 06 · Próximamente</h2>
                     <p class="card-text">Este módulo se incorporará en una de las siguientes semanas del curso.</p>
                 </div>
                 <span class="btn-action btn-disabled">Módulo disponible próximamente</span>
