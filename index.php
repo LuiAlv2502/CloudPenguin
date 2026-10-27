@@ -236,12 +236,12 @@ try {
                 <a href="Module_3/diagnostico.php" class="btn-action">Abrir Diagnóstico</a>
             </div>
 
-            <div class="card proximo">
+            <div class="card">
                 <div>
-                    <h2 class="card-title">Proyecto 04 · Próximamente</h2>
-                    <p class="card-text">Este módulo se incorporará en una de las siguientes semanas del curso.</p>
+                    <h2 class="card-title">Proyecto 04 · Mantenimiento básico</h2>
+                    <p class="card-text">Panel de tablas propias con filas estimadas, tamaños e índices, actualización de estadísticas (ANALYZE) con confirmación y bitácora de las últimas ejecuciones.</p>
                 </div>
-                <span class="btn-action btn-disabled">Módulo disponible próximamente</span>
+                <a href="Module_4/mantenimiento.php" class="btn-action">Abrir Mantenimiento</a>
             </div>
 
             <div class="card proximo">
