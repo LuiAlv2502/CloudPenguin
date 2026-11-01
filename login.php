@@ -1,15 +1,14 @@
 <?php
 session_start();
 
-require_once __DIR__ . '/cargar_env.php';
-cargar_env(__DIR__ . '/../.env');
+require_once __DIR__ . '/Module_1/env.php';
 
-// Lista de usuarios válidos tomados del .env
+// Usuarios válidos tomados de ~/proyecto/.env
 $usuarios_validos = [];
 foreach ([1, 2] as $n) {
-    $u = $_ENV["DBA_USER_$n"] ?? '';
-    $h = $_ENV["DBA_PASS_HASH_$n"] ?? '';
-    if ($u !== '' && $h !== '') {
+    $u = env("DBA_USER_$n");
+    $h = env("DBA_PASS_HASH_$n");
+    if ($u !== null && $u !== '' && $h !== null && $h !== '') {
         $usuarios_validos[$u] = $h;
     }
 }
@@ -20,8 +19,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $usuario_ingresado = trim($_POST['usuario'] ?? '');
     $clave_ingresada   = $_POST['clave'] ?? '';
 
-    // Si el usuario no existe, se verifica contra un hash falso
-    // para que el tiempo de respuesta sea parecido en ambos casos
     $hash_falso = '$2y$10$usesomesillystringforeAbCdEfGhIjKlMnOpQrStUvWxYz012345678';
     $hash = $usuarios_validos[$usuario_ingresado] ?? $hash_falso;
 
