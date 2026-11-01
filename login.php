@@ -1,22 +1,38 @@
 <?php
 session_start();
 
-require_once __DIR__ . '/Usuario_y_CLave.php';
+require_once __DIR__ . '/cargar_env.php';
+cargar_env(__DIR__ . '/../.env');
+
+// Lista de usuarios válidos tomados del .env
+$usuarios_validos = [];
+foreach ([1, 2] as $n) {
+    $u = $_ENV["DBA_USER_$n"] ?? '';
+    $h = $_ENV["DBA_PASS_HASH_$n"] ?? '';
+    if ($u !== '' && $h !== '') {
+        $usuarios_validos[$u] = $h;
+    }
+}
 
 $error = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $usuario_ingresado = trim($_POST['usuario'] ?? '');
-    $clave_ingresada = $_POST['clave'] ?? '';
+    $clave_ingresada   = $_POST['clave'] ?? '';
+
+    // Si el usuario no existe, se verifica contra un hash falso
+    // para que el tiempo de respuesta sea parecido en ambos casos
+    $hash_falso = '$2y$10$usesomesillystringforeAbCdEfGhIjKlMnOpQrStUvWxYz012345678';
+    $hash = $usuarios_validos[$usuario_ingresado] ?? $hash_falso;
 
     if (
-        hash_equals($usuario, $usuario_ingresado) &&
-        password_verify($clave_ingresada, $clave_hash)
+        isset($usuarios_validos[$usuario_ingresado]) &&
+        password_verify($clave_ingresada, $hash)
     ) {
         session_regenerate_id(true);
 
         $_SESSION['autenticado'] = true;
-        $_SESSION['usuario'] = $usuario;
+        $_SESSION['usuario'] = $usuario_ingresado;
 
         header('Location: index.php');
         exit;
@@ -25,7 +41,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $error = 'Usuario o contraseña incorrectos.';
 }
 ?>
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
