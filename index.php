@@ -252,12 +252,12 @@ try {
                 <span class="btn-action btn-disabled">Módulo disponible próximamente</span>
             </div>
 
-            <div class="card proximo">
+            <div class="card">
                 <div>
-                    <h2 class="card-title">Modulo 06 · Próximamente</h2>
-                    <p class="card-text">Este módulo se incorporará en una de las siguientes semanas del curso.</p>
+                    <h2 class="card-title">Módulo 06 · Explorador del diccionario de datos</h2>
+                    <p class="card-text">Consulte columnas, llaves, restricciones e índices de las tablas propias del esquema public.</p>
                 </div>
-                <span class="btn-action btn-disabled">Módulo disponible próximamente</span>
+                <a href="Module_6/diccionario.php" class="btn-action">Abrir Explorador</a>
             </div>
         </div>
 </main>

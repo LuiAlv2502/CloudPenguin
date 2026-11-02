@@ -4,7 +4,14 @@
 
 - `Module_1/`: monitor del servidor (`estado_servidor.php`), configuración (`env.php`) y scripts SQL (`scripts/`).
 - `Module_2/`: interfaz de respaldos (`respaldos.php`) y script de generación (`backup.sh`).
+- `Module_6/`: explorador de metadata de tablas propias en PostgreSQL (`diccionario.php`).
 - La conexión a la base de datos, el inicio de sesión y el menú principal permanecen en la raíz del proyecto.
+
+## Módulo 06: Explorador del diccionario de datos
+
+Desde el menú principal, abra **Módulo 06 · Explorador del diccionario de datos**. Seleccione una tabla del esquema `public` para consultar sus columnas, tipos, valores nulos, valores predeterminados, llaves y restricciones, e índices disponibles. El módulo usa la conexión configurada y solo realiza consultas de lectura sobre metadata; no necesita instalaciones, permisos administrativos ni cambios a los datos.
+
+Para probarlo, seleccione `productos` y compruebe que aparecen sus columnas y la llave primaria `id_producto`. También puede seleccionar `ventas` o `detalle_venta` para revisar sus restricciones e índices. Si una tabla no aparece, el usuario de conexión no la ve en el esquema permitido o no existe en esa base.
 
 ## Configuración
 
