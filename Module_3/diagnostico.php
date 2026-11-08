@@ -783,7 +783,7 @@ $variacion = ($costoAntes !== null && $costoAntes > 0)
                 <div class="alert-aviso" style="margin-top:16px">Primero cree la tabla <code>dba_planes</code> ejecutando <code>Module_3/scripts/planes_historicos.sql</code>.</div>
             <?php endif; ?>
 
-            <?php if (count($historial) > 1): ?>
+            <?php if (count($historial) > 0): ?>
                 <h3 style="font-size:14px;color:var(--dark);margin:22px 0 10px">Referencias guardadas de <?= h($casoId) ?></h3>
                 <div class="table-wrap">
                     <table class="datos">
