@@ -332,23 +332,35 @@ try {
     $tablaEstadoIndices = $pdo->query("SELECT (to_regclass('dba_indices_prueba') IS NOT NULL)::text")->fetchColumn() === 'true';
     if ($tablaHist) {
         $parametroActual = $caso['param']['etiqueta'] . ' = ' . $valor;
+
+        // CORRECCIÓN: el alias "fecha" es texto (to_char), y ORDER BY fecha
+        // ordenaría por ese texto ('26/10/...' > '08/11/...'). Se califica
+        // dba_planes.fecha para ordenar por el timestamp real de la tabla.
         $st = $pdo->prepare("
-            SELECT id, caso, to_char(fecha, 'DD/MM/YYYY HH24:MI:SS') AS fecha, cuenta, base_datos,
-                   parametro, etapa, costo_total, filas_est, plan_texto, plan_json::text AS plan_json
+            SELECT dba_planes.id, dba_planes.caso,
+                   to_char(dba_planes.fecha, 'DD/MM/YYYY HH24:MI:SS') AS fecha,
+                   dba_planes.cuenta, dba_planes.base_datos,
+                   dba_planes.parametro, dba_planes.etapa, dba_planes.costo_total,
+                   dba_planes.filas_est, dba_planes.plan_texto,
+                   dba_planes.plan_json::text AS plan_json
             FROM dba_planes
-            WHERE caso = :caso AND etapa = 'ANTES' AND parametro = :parametro
-            ORDER BY fecha DESC, id DESC
+            WHERE dba_planes.caso = :caso AND dba_planes.etapa = 'ANTES' AND dba_planes.parametro = :parametro
+            ORDER BY dba_planes.fecha DESC, dba_planes.id DESC
             LIMIT 1
         ");
         $st->execute([':caso' => $casoId, ':parametro' => $parametroActual]);
         $referencia = $st->fetch() ?: null;
 
         $st = $pdo->prepare("
-            SELECT id, caso, to_char(fecha, 'DD/MM/YYYY HH24:MI:SS') AS fecha, cuenta, base_datos,
-                   parametro, etapa, costo_total, filas_est, plan_texto, plan_json::text AS plan_json
+            SELECT dba_planes.id, dba_planes.caso,
+                   to_char(dba_planes.fecha, 'DD/MM/YYYY HH24:MI:SS') AS fecha,
+                   dba_planes.cuenta, dba_planes.base_datos,
+                   dba_planes.parametro, dba_planes.etapa, dba_planes.costo_total,
+                   dba_planes.filas_est, dba_planes.plan_texto,
+                   dba_planes.plan_json::text AS plan_json
             FROM dba_planes
-            WHERE caso = :caso AND etapa = 'ANTES'
-            ORDER BY fecha DESC, id DESC
+            WHERE dba_planes.caso = :caso AND dba_planes.etapa = 'ANTES'
+            ORDER BY dba_planes.fecha DESC, dba_planes.id DESC
             LIMIT 5
         ");
         $st->execute([':caso' => $casoId]);
